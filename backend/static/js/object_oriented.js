@@ -10,9 +10,10 @@ function initMap() {
     map = new google.maps.Map(document.getElementById('map'), {
         center: {lat: parseFloat(12.1316416), lng: parseFloat(-86.2681935)},
         zoom: 15
-        
     });
+    
     user_center = getCenter();
+    
     if(new_map){
         map.addListener('rightclick', function(e) {
             var pokemon_sighting = new PokemonSighting(e.latLng.lat(), e.latLng.lng());
@@ -35,7 +36,6 @@ function getCenter(){
 }
 
 function getMoreData(ignore_significative_movement=false){
-    console.log(ignore_significative_movement);
 	//If the user's movement was significate,updates the user center, and requests more data to the server
 	if(wasMovementSignificative() || ignore_significative_movement){
 	   user_center = getCenter()
@@ -142,10 +142,10 @@ class PokemonSighting{
             this.infowindow.open(map, this.marker);
             i = this.infowindow;
             google.maps.event.addListener(this.infowindow,'closeclick',function(){
-                this.marker.setMap(null); 
+                _self.marker.setMap(null); 
             });
             
-           
+        
             _self.infowindow.content.getElementsByClassName('btnGuardar')[0].addEventListener(
                 'click',
                 function(){
@@ -154,6 +154,11 @@ class PokemonSighting{
                 }
             );
                
+        }
+        
+        this.updateMarkerIcon = function(){
+            console.log("assigning: "+this.pokemon+" icon")
+            this.marker.setIcon("/icons/"+this.pokemon);
         }
         
         this.savePokemonLocation = function(){
@@ -169,7 +174,7 @@ class PokemonSighting{
                 contentType: "application/json",
                 success: function(data) {
                     _self.infowindow.close();
-                    //this.marker.setMap(null);
+                    _self.updateMarkerIcon();//Asign the marker, the respective pokemon icon
                     alert(data);
                 },
                 error: function (XMLHttpRequest, estado, errorS) {

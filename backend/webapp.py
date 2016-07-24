@@ -70,3 +70,8 @@ def send_js(path):
 @app.route('/css/<path>')
 def send_css(path):
     return send_from_directory('static/css', path)
+    
+@app.route('/icons/<path>')
+def send_icon(path):
+    print("static/icons/{}.png".format(path.lower()))
+    return send_from_directory('static/icons', "{}.png".format(path.lower()))
