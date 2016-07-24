@@ -16,10 +16,13 @@ def renderMap():
     #return render_template("map.html", pokemon_names = ["pikachu", "charmander", "snorlax"])
     
     
-@app.route("/pokemon_locations/{lat}/{lng}", methods=["GET"])
-def getPokemonLocations(lat, lng):
+@app.route("/retrieve_locations", methods=["POST"])
+def getPokemonLocations():
     """ Returns pokemon locations around a given location.
     Gets called when you move accross the map """
+    data = json.loads(request.data)
+    if "lat" not in data or not data["lat"] or "lng" not in data or not data["lng"]:
+        return abort(404)
 
     pokemon_sightings = orm.Sighting.select().where( #Select pokemon sightings in a given radius
         (orm.Sighting.lat<=lat+0.04) & (orm.Sighting.lat>=lat-0.04) & # between lat-0.04 and lat+0.04
@@ -35,10 +38,9 @@ def savePokemonLocations():
     data = json.loads(request.data)
     print(data)
     #If no coordinates were provided, or no pokemon name was provided, abort
-    if "lat" not in data or not data["lat"]\
-    or "lng" not in data or not data["lng"]\
-    or "pokemon" not in data or not data["pokemon"]: #If no pokemon name was provided, abort
-        abort(400, "Missing sighting data")
+    if "lat" not in data or not data["lat"] or "lng" not in data or not data["lng"]\
+    or "pokemon" not in data or not data["pokemon"] or "sighting_id" not in data or not data["sighting_id"]:
+        return abort(400, "Missing sighting data")
 
     lat = data["lat"]
     lng = data["lng"]
@@ -48,7 +50,7 @@ def savePokemonLocations():
     sighted_pokemon = orm.Pokemon.get(name=pokemon.capitalize())
     print(sighted_pokemon.name)
     if not sighted_pokemon:
-        abort(400, "That Pokemon doesn't exist")
+        return abort(400, "That Pokemon doesn't exist")
     
     orm.Sighting.create(lat=lat, lng=lng, pokemon=sighted_pokemon)
     return "ok"

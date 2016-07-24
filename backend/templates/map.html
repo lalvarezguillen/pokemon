@@ -51,37 +51,65 @@
     </style>
 </head>
 <body>
-	<div id="contenido" class="hide">
-			<div id="content">
-		  <div class="row">
-		    <div class="col-sm-12">
-		      <form class="form-horizontal">
-		        <div class="form-group">
-		          <label for="inputEmail3" class="col-sm-2 control-label">Pokemones:</label>
-		          <div class="col-sm-10">
-		            <select class="form-control cmbPokemon">
-									{% for pokemon in pokemon_names %}
-										<option value="{{ pokemon }}">{{ pokemon }}</option>
-									{% endfor %}
-		            </select>
-		          </div>
-		        </div>
-		        <div class="form-group">
-		          <div class="col-sm-offset-2 col-sm-10">
-		            <button type="button" class="btn btn-default btnGuardar">Guardar</button>
-		          </div>
-		        </div>
-		      </form>
-		    </div>
-		  </div>
-		</div>
-	</div>
+	<!-- <div id="contenido" class="hide">
+	    <div id="content">
+	    <div class="row">
+	      <div class="col-sm-12">
+	        <form class="form-horizontal">
+	          <div class="form-group">
+	            <label for="inputEmail3" class="col-sm-2 control-label">Pokemones:</label>
+	            <div class="col-sm-10">
+	              <select class="form-control cmbPokemon">
+	                {% for pokemon in pokemon_names %}
+	                  <option value="{{ pokemon }}">{{ pokemon }}</option>
+	                {% endfor %}
+	              </select>
+	            </div>
+	          </div>
+	          <div class="form-group">
+	            <div class="col-sm-offset-2 col-sm-10">
+	              <button type="button" class="btn btn-default btnGuardar">Guardar</button>
+	            </div>
+	          </div>
+	        </form>
+	      </div>
+	    </div>
+	  </div>
+	</div> -->
+	<script>
+	  //localStorage["pokemon_names"] = {{ pokemon_names }};
+	  localStorage["infowindow_content"] = '<div id="content">\
+	    <div class="row">\
+	      <div class="col-sm-12">\
+	        <form class="form-horizontal">\
+	          <div class="form-group">\
+	            <label for="inputEmail3" class="col-sm-2 control-label">Pokemones:</label>\
+	            <div class="col-sm-10">\
+	              <select class="form-control cmbPokemon">\
+	                {% for pokemon in pokemon_names %}\
+	                  <option value="{{ pokemon }}">{{ pokemon }}</option>\
+	                {% endfor %}\
+	              </select>\
+	            </div>\
+	          </div>\
+	          <div class="form-group">\
+	            <div class="col-sm-offset-2 col-sm-10">\
+	              <button type="button" class="btn btn-default btnGuardar">Guardar</button>\
+	            </div>\
+	          </div>\
+	        </form>\
+	      </div>\
+	    </div>\
+	  </div>';
+	  
+	    
+	</script>
 	<img src="" alt="Logo" style="width:150px; position:absolute; top:80px; left:20px; z-index:3" alt="" />
 
 	<div id="map"></div>
 
 	<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBSEDywziy5OfN1aKb91LYMcT4LP8BH6c8&signed_in=true&callback=initMap"
         async defer></script>
-  <script type="text/javascript" src="/js/pokemon.js"></script>
+  <script type="text/javascript" src="/js/object_oriented.js"></script>
 
 </body>
