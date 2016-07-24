@@ -15,7 +15,7 @@ class Pokemon(Model):
 
 class Sighting(Model):
     """ Represents pokemon sightings """
-    id = IntegerField()
+    id = CharField()
     lat = FloatField()
     lng = FloatField()
     pokemon = ForeignKeyField(Pokemon, related_name='sightings')

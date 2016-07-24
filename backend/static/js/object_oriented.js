@@ -1,6 +1,9 @@
 var map;
 var user_center;
 var i;
+var markers_on_map = [];
+var new_map = true;
+
 
 function initMap() {
     //Initializes the map, and some events
@@ -9,13 +12,17 @@ function initMap() {
         zoom: 15
         
     });
-    
     user_center = getCenter();
-    map.addListener("center_changed", getMoreData);
-    
-    map.addListener('rightclick', function(e) {
-        var pokemon_sighting = new PokemonSighting(e.latLng.lat(), e.latLng.lng());
-    });
+    if(new_map){
+        map.addListener('rightclick', function(e) {
+            var pokemon_sighting = new PokemonSighting(e.latLng.lat(), e.latLng.lng());
+        });
+        map.addListener("center_changed", getMoreData);
+        console.log("Esto solo debe imprimirse una vez");
+        getMoreData(ignore_significate_movement=true);
+        new_map = false;
+    }
+
       
 }
 
@@ -23,31 +30,28 @@ function getCenter(){
 	//Returns a dictionary containing lat and long
 	return {
 	   lat: map.center.lat(),
-	   long: map.center.lng()
+	   lng: map.center.lng()
 	}
 }
 
-function getMoreData(){
+function getMoreData(ignore_significative_movement=false){
+    console.log(ignore_significative_movement);
 	//If the user's movement was significate,updates the user center, and requests more data to the server
-	if(wasMovementSignificative()){
+	if(wasMovementSignificative() || ignore_significative_movement){
 	   user_center = getCenter()
 	   console.log("Pidiendo data...Nuevo centro: "+user_center["lat"]+" - "+user_center["long"]);
+	   getPokemonLocations(user_center);
 	}
 }
 
-function getPokemonLocations(){
+function getPokemonLocations(user_center_now){
     $.ajax({
-        url : '/pokemon_locations',
+        url : '/retrieve_locations',
         type : 'post',
-        data : JSON.stringify({
-            lat:this.infowindow.position.lat(),
-            lng:this.infowindow.position.lng(),
-        }),
+        data : JSON.stringify(user_center_now),
         contentType: "application/json",
         success: function(data) {
-            _self.infowindow.close();
-            //this.marker.setMap(null);
-            alert(data);
+           handleMarkers(data);
         },
         error: function (XMLHttpRequest, estado, errorS) {
             var error = eval("(" + XMLHttpRequest.responseText + ")");
@@ -60,13 +64,43 @@ function getPokemonLocations(){
         }
     });
 }
+
+function handleMarkers(list_of_markers){
+    //Handles a list of markers around your location, provided by the server
+    list_of_markers = JSON.parse(list_of_markers);
+    $.each(list_of_markers, function(index,marker){
+        if(!isAlreadyOnMap(marker)){ //If the marker is not on the map already
+            generateMarker(marker); // Put it on the map
+            markers_on_map.push(marker.id); //And include it on the list of markers on the map
+        }
+    });
+}
+
+function isAlreadyOnMap(marker){
+    //CHecks if a given marker is already on the map
+    if(markers_on_map.indexOf(marker.id) < 0){
+        return false
+    }
+    else return true
+}
+
+function generateMarker(marker) {
+    // Generates a marker on the map.
+    myLatlng = {lat: marker.lat, lng: marker.lng};
+    var marker = new google.maps.Marker({
+        position: myLatlng,
+        map: map,
+        title: marker.pokemon
+    });
+}
+
 function wasMovementSignificative(){
 	//Decides if the user movement was significative enough to justify requesting more data
 	current_center = getCenter();
-	if(Math.abs(current_center["lat"] - user_center["lat"]) >= 0.04){
+	if(Math.abs(Math.abs(current_center["lat"]) - Math.abs(user_center["lat"])) >= 0.04){
 	   return true
 	}
-	if(Math.abs(current_center["long"] - user_center["long"]) >= 0.04){
+	if(Math.abs(Math.abs(current_center["lng"]) - Math.abs(user_center["lng"])) >= 0.04){
 	    return true
 	}
 	return false
@@ -82,7 +116,7 @@ class PokemonSighting{
         this.generateUniqueId = function(){
             //Generates a unique ID for the sighting
             this.date = new Date();
-            var unique_id = Math.abs(lat).toString().replace(".", "") + Math.abs(lng).toString().replace() +
+            var unique_id = Math.abs(lat).toString().replace(".", "") + Math.abs(lng).toString().replace(".","") +
             this.date.getFullYear().toString() + (this.date.getMonth()-1).toString() + this.date.getDate().toString() +
             parseInt(Math.random()*999999999).toString();
             
